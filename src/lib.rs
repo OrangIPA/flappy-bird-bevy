@@ -36,7 +36,7 @@ pub fn setup(
     // asset_server: Res<AssetServer>,
     // mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands.spawn_bundle(Camera2dBundle::default());
     // bird_spawn(commands, asset_server, texture_atlases);
 }
 
