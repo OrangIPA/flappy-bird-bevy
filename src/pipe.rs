@@ -11,13 +11,14 @@ use crate::GameState;
 #[derive(Component)]
 pub struct Pipe;
 
+#[derive(Resource)]
 pub struct PipeSpawnConfig {
     pub timer: Timer,
 }
 
 pub fn spawn_pipe_timer(mut commands: Commands) {
     commands.insert_resource(PipeSpawnConfig {
-        timer: Timer::new(Duration::from_millis(2000), true),
+        timer: Timer::new(Duration::from_millis(2000), TimerMode::Repeating),
     });
 }
 
@@ -33,7 +34,7 @@ pub fn spawn_pipe(
     pipe_spawn_config.timer.tick(time.delta());
     if pipe_spawn_config.timer.finished() {
         commands
-            .spawn_bundle(SpriteBundle {
+            .spawn(SpriteBundle {
                 texture: asset_server.load("pipe.png"),
                 transform: Transform {
                     translation: Vec3::new(700., random as f32 - 352., 0.),
@@ -45,7 +46,7 @@ pub fn spawn_pipe(
             .insert(Pipe);
 
         commands
-            .spawn_bundle(SpriteBundle {
+            .spawn(SpriteBundle {
                 texture: asset_server.load("pipe.png"),
                 transform: Transform {
                     translation: Vec3::new(700., random as f32 + 360., 0.),

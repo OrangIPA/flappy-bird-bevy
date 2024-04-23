@@ -8,7 +8,7 @@ use pipe::*;
 pub const WINDOW_HEIGHT: f32 = 700.;
 pub const WINDOW_WIDTH: f32 = 1200.;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Resource)]
 pub enum GameState {
     Pause,
     Play,
@@ -18,16 +18,19 @@ pub struct FlappyPlugin;
 
 impl Plugin for FlappyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
-            .add_startup_system(bird_spawn)
-            .add_startup_system(spawn_pipe_timer)
-            .add_system(bird_update)
-            .add_system(input)
-            .add_system(spawn_pipe)
-            .add_system(update_pipe)
-            .add_system(despawn_pipe)
-            .add_system(ded_detect)
-            .add_system(ded);
+        app.add_systems(Startup, (setup, bird_spawn, spawn_pipe_timer))
+            .add_systems(
+                Update,
+                (
+                    bird_update,
+                    input,
+                    spawn_pipe,
+                    update_pipe,
+                    despawn_pipe,
+                    ded_detect,
+                    ded,
+                ),
+            );
     }
 }
 
@@ -36,28 +39,29 @@ pub fn setup(
     // asset_server: Res<AssetServer>,
     // mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
     // bird_spawn(commands, asset_server, texture_atlases);
 }
 
 pub fn input(
-    keys: Res<Input<KeyCode>>,
+    // keys: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut state: ResMut<GameState>,
-    mut query: Query<&mut Bird>
+    mut query: Query<&mut Bird>,
 ) {
     for mut bird in query.iter_mut() {
         // Jump if space is pressed
-        if keys.just_pressed(KeyCode::Space) {
+        if keyboard_input.just_pressed(KeyCode::Space) {
             bird.is_jump = true;
         }
 
         // Emulate dead state when 'R' is pressed
-        if keys.just_pressed(KeyCode::R) {
+        if keyboard_input.just_pressed(KeyCode::KeyR) {
             bird.is_ded = true;
         }
 
         // Pause mechanism
-        if keys.just_pressed(KeyCode::Escape) {
+        if keyboard_input.just_pressed(KeyCode::Escape) {
             match *state {
                 GameState::Pause => *state = GameState::Play,
                 GameState::Play => *state = GameState::Pause,
